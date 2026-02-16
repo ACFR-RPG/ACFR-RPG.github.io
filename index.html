@@ -1,75 +1,669 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>ACFR RPG</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ACFR RPG — Punk Academic Lab</title>
+
   <style>
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      margin: 40px;
-      background: #fafafa;
-      color: #222;
+    :root{
+      --bg: #07060a;
+      --panel: rgba(255,255,255,0.06);
+      --panel2: rgba(255,255,255,0.09);
+      --text: #f2f2f2;
+      --muted: rgba(242,242,242,0.75);
+      --neon1: #00ffd5;   /* cyan */
+      --neon2: #ff2bd6;   /* magenta */
+      --neon3: #ffe600;   /* yellow */
+      --danger: #ff3b3b;
+      --ok: #40ff7a;
+      --border: rgba(255,255,255,0.12);
+      --shadow: 0 12px 35px rgba(0,0,0,0.55);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
     }
-    h1 { color: #003366; }
-    nav a {
-      margin-right: 15px;
-      text-decoration: none;
-      color: #0066cc;
-      font-weight: bold;
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(255,43,214,0.12), transparent 55%),
+        radial-gradient(900px 500px at 90% 25%, rgba(0,255,213,0.12), transparent 55%),
+        radial-gradient(900px 700px at 50% 90%, rgba(255,230,0,0.10), transparent 60%),
+        linear-gradient(180deg, #05040a, #07060a 40%, #0a0910);
+      color: var(--text);
+      overflow-x:hidden;
     }
-    section {
-      margin-top: 40px;
+
+    /* Grain overlay */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 1px, transparent 1px, transparent 3px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 1px, transparent 1px, transparent 4px);
+      mix-blend-mode: overlay;
+      opacity:0.35;
+      z-index:0;
     }
-    .card {
-      background: white;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+
+    a{color:var(--neon1); text-decoration:none}
+    a:hover{ text-decoration: underline; }
+
+    .wrap{
+      position:relative;
+      z-index:1;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 18px 70px;
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 220px;
+    }
+    .badge{
+      width:38px;height:38px;border-radius:12px;
+      background:
+        conic-gradient(from 180deg, var(--neon2), var(--neon1), var(--neon3), var(--neon2));
+      box-shadow: 0 0 22px rgba(255,43,214,0.35);
+      border: 1px solid rgba(255,255,255,0.18);
+      position:relative;
+    }
+    .badge::after{
+      content:"";
+      position:absolute; inset:8px;
+      border-radius:10px;
+      background: rgba(0,0,0,0.55);
+      border:1px dashed rgba(255,255,255,0.28);
+    }
+    .brand h1{
+      margin:0;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: var(--mono);
+    }
+    .brand .sub{
+      margin:0;
+      font-size:12px;
+      color: var(--muted);
+    }
+
+    .nav{
+      display:flex; gap: 12px; flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+    .nav a{
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.25);
+    }
+    .nav a:hover{
+      border-color: rgba(0,255,213,0.65);
+      box-shadow: 0 0 18px rgba(0,255,213,0.14);
+      text-decoration:none;
+    }
+
+    /* Hero */
+    .hero{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px){
+      .hero{ grid-template-columns: 1fr; }
+      .brand{min-width:auto;}
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+      backdrop-filter: blur(10px);
+    }
+    .card .inner{ padding: 18px; }
+
+    .glitch{
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      font-size: 34px;
+      margin: 0 0 8px 0;
+      position:relative;
+      display:inline-block;
+    }
+    .glitch::before, .glitch::after{
+      content: attr(data-text);
+      position:absolute;
+      left:0; top:0;
+      opacity:0.75;
+      mix-blend-mode: screen;
+      pointer-events:none;
+    }
+    .glitch::before{
+      transform: translate(2px, -1px);
+      color: var(--neon2);
+      clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+    }
+    .glitch::after{
+      transform: translate(-2px, 1px);
+      color: var(--neon1);
+      clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
+    }
+
+    .tagline{
+      margin: 10px 0 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14.5px;
+    }
+
+    .tapeRow{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .tape{
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.55);
+      border: 1px dashed rgba(255,255,255,0.22);
+      position:relative;
+    }
+    .tape::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, rgba(255,43,214,0.12), rgba(0,255,213,0.12), rgba(255,230,0,0.12));
+      z-index:-1;
+      filter: blur(10px);
+      opacity:0.8;
+    }
+
+    .heroImg{
+      height: 100%;
+      min-height: 220px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .photo{
+      border-radius: 16px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.35);
+    }
+    .photo img{
+      width:100%;
+      display:block;
+      aspect-ratio: 16/10;
+      object-fit: cover;
+      filter: contrast(1.05) saturate(1.1);
+    }
+    .photo .cap{
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+    }
+
+    /* Sections */
+    .section{
+      margin-top: 16px;
+    }
+    .sectionHeader{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+    }
+    .sectionHeader h2{
+      margin:0;
+      font-family: var(--mono);
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--neon3);
+    }
+    .sectionHeader .hint{
+      margin:0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* People grid */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 16px;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width: 640px){ .grid{grid-template-columns: 1fr;} }
+
+    .person{
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      overflow:hidden;
+    }
+    .person .pimg img{
+      width:100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display:block;
+      filter: contrast(1.05) saturate(1.1) grayscale(0.05);
+    }
+    .person .pbody{ padding: 12px 12px 14px; }
+    .person .name{
+      margin:0;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .person .role{
+      margin: 5px 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+    .chip{
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.25);
+      color: var(--text);
+    }
+
+    /* Publications */
+    .pubControls{
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center;
+      padding: 12px 16px;
+    }
+    .input, .select{
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.35);
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 14px;
+      outline:none;
+      min-width: 220px;
+    }
+    .input::placeholder{ color: rgba(242,242,242,0.45); }
+
+    .pubList{
+      padding: 8px 16px 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .pubItem{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      padding: 12px 12px 12px;
+    }
+    .pubTitle{
+      margin:0 0 6px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      line-height: 1.25;
+    }
+    .pubMeta{
+      margin:0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .pubLinks{
+      margin-top: 10px;
+      display:flex; flex-wrap:wrap; gap:10px;
+    }
+    .btn{
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.35);
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      color: var(--text);
+    }
+    .btn:hover{
+      border-color: rgba(255,43,214,0.65);
+      box-shadow: 0 0 18px rgba(255,43,214,0.14);
+      text-decoration:none;
+    }
+
+    /* Footer */
+    footer{
+      margin-top: 18px;
+      text-align:center;
+      color: rgba(242,242,242,0.55);
+      font-size: 12px;
+      font-family: var(--mono);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
   </style>
 </head>
 
 <body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge" aria-hidden="true"></div>
+        <div>
+          <h1>ACFR RPG</h1>
+          <p class="sub">Robotics Perception Group · University of Sydney</p>
+        </div>
+      </div>
+      <div class="nav">
+        <a href="#about">About</a>
+        <a href="#people">People</a>
+        <a href="#publications">Publications</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
 
-<h1>Robotics Perception Group</h1>
-<p>Australian Centre for Field Robotics</p>
+    <div class="hero" id="about">
+      <div class="card">
+        <div class="inner">
+          <h2 class="glitch" data-text="Robotics Perception Group">Robotics Perception Group</h2>
+          <p class="tagline">
+            We build perception + mapping + planning systems that survive reality: dynamics, occlusions,
+            limited compute, and field robots that don’t care about your assumptions.
+          </p>
 
-<nav>
-  <a href="#projects">Projects</a>
-  <a href="#people">People</a>
-  <a href="#publications">Publications</a>
-  <a href="#join">Join Us</a>
-</nav>
+          <div class="tapeRow">
+            <div class="tape">SLAM / Dynamic Scenes</div>
+            <div class="tape">Active Perception</div>
+            <div class="tape">Robotic Inspection</div>
+            <div class="tape">Real-time Robotics</div>
+          </div>
 
-<section id="projects">
-  <h2>Projects</h2>
-  <div class="card">
-    <b>DynoRecon</b><br>
-    Dynamic scene reconstruction and mapping.
+          <p class="tagline" style="margin-top:14px">
+            <b>Placeholders:</b> Replace text, add project cards, link GitHub repos, and update the JSON files
+            in <code style="font-family:var(--mono)">docs/data/</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="card heroImg">
+        <div class="photo">
+          <img src="assets/group.jpg" alt="Group photo placeholder" onerror="this.src='assets/member_placeholder.jpg'">
+          <div class="cap">Group photo · Replace <code style="font-family:var(--mono)">docs/assets/group.jpg</code></div>
+        </div>
+        <div class="inner" style="padding-top:0">
+          <div class="tape" style="display:inline-block">Punk Mode: ON</div>
+          <p class="tagline" style="margin-top:10px">
+            Tip: keep photos ~1200px wide, JPG, and compress them (GitHub Pages loads fast if images are small).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PEOPLE -->
+    <div class="card section" id="people">
+      <div class="sectionHeader">
+        <h2>People</h2>
+        <p class="hint">Loaded from <code style="font-family:var(--mono)">docs/data/members.json</code></p>
+      </div>
+      <div class="grid" id="peopleGrid">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- PUBLICATIONS -->
+    <div class="card section" id="publications">
+      <div class="sectionHeader">
+        <h2>Publications</h2>
+        <p class="hint">Loaded from <code style="font-family:var(--mono)">docs/data/publications.json</code></p>
+      </div>
+
+      <div class="pubControls">
+        <input id="pubSearch" class="input" placeholder="Search title/author/venue…" />
+        <select id="pubYear" class="select">
+          <option value="">All years</option>
+        </select>
+        <select id="pubType" class="select">
+          <option value="">All types</option>
+          <option value="journal">Journal</option>
+          <option value="conference">Conference</option>
+          <option value="workshop">Workshop</option>
+          <option value="preprint">Preprint</option>
+          <option value="thesis">Thesis</option>
+        </select>
+      </div>
+
+      <div class="pubList" id="pubList">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="card section" id="contact">
+      <div class="sectionHeader">
+        <h2>Contact</h2>
+        <p class="hint">Replace placeholders</p>
+      </div>
+      <div class="inner">
+        <p class="tagline">
+          <b>Email:</b> <a href="mailto:your-lab-email@sydney.edu.au">your-lab-email@sydney.edu.au</a><br/>
+          <b>Address:</b> ACFR, University of Sydney, NSW, Australia<br/>
+          <b>GitHub:</b> <a href="https://github.com/ACFR-RPG" target="_blank" rel="noopener">github.com/ACFR-RPG</a>
+        </p>
+      </div>
+    </div>
+
+    <footer>
+      © <span id="year"></span> ACFR RPG · Built with GitHub Pages · Glitch responsibly
+    </footer>
   </div>
-</section>
 
-<section id="people">
-  <h2>People</h2>
-  <div class="card">
-    Viorela Ila — Group Lead
-  </div>
-</section>
+<script>
+  const $ = (id) => document.getElementById(id);
 
-<section id="publications">
-  <h2>Publications</h2>
-  <div class="card">
-    Coming soon
-  </div>
-</section>
+  function safeText(s){ return (s ?? "").toString(); }
 
-<section id="join">
-  <h2>Join Us</h2>
-  <div class="card">
-    We are looking for PhD students and interns interested in SLAM, perception and robotics.
-  </div>
-</section>
+  async function loadJSON(path){
+    const r = await fetch(path, { cache: "no-store" });
+    if(!r.ok) throw new Error("Failed to load " + path);
+    return await r.json();
+  }
 
+  function renderPeople(members){
+    const grid = $("peopleGrid");
+    grid.innerHTML = "";
+
+    members.forEach(m => {
+      const img = m.photo || "assets/member_placeholder.jpg";
+      const chips = (m.tags || []).map(t => `<span class="chip">${escapeHtml(t)}</span>`).join("");
+
+      const links = [];
+      if(m.website) links.push(`<a class="btn" href="${escapeAttr(m.website)}" target="_blank" rel="noopener">Website</a>`);
+      if(m.scholar) links.push(`<a class="btn" href="${escapeAttr(m.scholar)}" target="_blank" rel="noopener">Scholar</a>`);
+      if(m.github)  links.push(`<a class="btn" href="${escapeAttr(m.github)}" target="_blank" rel="noopener">GitHub</a>`);
+      if(m.email)   links.push(`<a class="btn" href="mailto:${escapeAttr(m.email)}">Email</a>`);
+
+      grid.insertAdjacentHTML("beforeend", `
+        <div class="person">
+          <div class="pimg">
+            <img src="${escapeAttr(img)}" alt="${escapeAttr(m.name)}" onerror="this.src='assets/member_placeholder.jpg'">
+          </div>
+          <div class="pbody">
+            <p class="name">${escapeHtml(m.name)}</p>
+            <p class="role">${escapeHtml(m.role || "")}</p>
+            <div class="chips">${chips}</div>
+            <div class="pubLinks" style="margin-top:12px">${links.join("")}</div>
+          </div>
+        </div>
+      `);
+    });
+  }
+
+  function normalizePub(p){
+    // expected fields: title, authors, year, venue, type, doi, url, pdf, code
+    return {
+      title: safeText(p.title),
+      authors: Array.isArray(p.authors) ? p.authors : safeText(p.authors).split(";").map(s=>s.trim()).filter(Boolean),
+      year: p.year ? String(p.year) : "",
+      venue: safeText(p.venue),
+      type: safeText(p.type).toLowerCase(),
+      doi: safeText(p.doi),
+      url: safeText(p.url),
+      pdf: safeText(p.pdf),
+      code: safeText(p.code)
+    };
+  }
+
+  function pubMatches(pub, q, year, type){
+    const hay = (pub.title + " " + pub.authors.join(" ") + " " + pub.venue + " " + pub.year).toLowerCase();
+    if(q && !hay.includes(q.toLowerCase())) return false;
+    if(year && pub.year !== year) return false;
+    if(type && pub.type !== type) return false;
+    return true;
+  }
+
+  function renderPubs(pubs){
+    const list = $("pubList");
+    const q = $("pubSearch").value.trim();
+    const year = $("pubYear").value;
+    const type = $("pubType").value;
+
+    const filtered = pubs.filter(p => pubMatches(p, q, year, type));
+
+    list.innerHTML = "";
+    if(filtered.length === 0){
+      list.innerHTML = `<div class="pubItem"><p class="pubTitle">No matches.</p><p class="pubMeta">Try another search or filter.</p></div>`;
+      return;
+    }
+
+    filtered.forEach(p => {
+      const metaParts = [];
+      if(p.authors.length) metaParts.push(escapeHtml(p.authors.join(", ")));
+      if(p.venue) metaParts.push(`<b>${escapeHtml(p.venue)}</b>`);
+      if(p.year) metaParts.push(escapeHtml(p.year));
+      if(p.type) metaParts.push(`<span class="chip">${escapeHtml(p.type)}</span>`);
+
+      const links = [];
+      if(p.url) links.push(`<a class="btn" href="${escapeAttr(p.url)}" target="_blank" rel="noopener">Link</a>`);
+      if(p.doi) links.push(`<a class="btn" href="https://doi.org/${encodeURIComponent(p.doi)}" target="_blank" rel="noopener">DOI</a>`);
+      if(p.pdf) links.push(`<a class="btn" href="${escapeAttr(p.pdf)}" target="_blank" rel="noopener">PDF</a>`);
+      if(p.code) links.push(`<a class="btn" href="${escapeAttr(p.code)}" target="_blank" rel="noopener">Code</a>`);
+
+      list.insertAdjacentHTML("beforeend", `
+        <div class="pubItem">
+          <p class="pubTitle">${escapeHtml(p.title || "Untitled")}</p>
+          <p class="pubMeta">${metaParts.join(" · ")}</p>
+          <div class="pubLinks">${links.join("")}</div>
+        </div>
+      `);
+    });
+  }
+
+  function fillYearFilter(pubs){
+    const years = [...new Set(pubs.map(p=>p.year).filter(Boolean))].sort((a,b)=>Number(b)-Number(a));
+    const sel = $("pubYear");
+    years.forEach(y=>{
+      const opt = document.createElement("option");
+      opt.value = y;
+      opt.textContent = y;
+      sel.appendChild(opt);
+    });
+  }
+
+  function escapeHtml(s){
+    return safeText(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function escapeAttr(s){
+    return escapeHtml(s).replaceAll("`","&#096;");
+  }
+
+  async function main(){
+    $("year").textContent = new Date().getFullYear();
+
+    // PEOPLE
+    try{
+      const members = await loadJSON("data/members.json");
+      renderPeople(members);
+    }catch(e){
+      $("peopleGrid").innerHTML = `<div class="pubItem"><p class="pubTitle">Couldn’t load members.json</p><p class="pubMeta">${escapeHtml(e.message)}</p></div>`;
+    }
+
+    // PUBLICATIONS
+    let pubs = [];
+    try{
+      const raw = await loadJSON("data/publications.json");
+      pubs = raw.map(normalizePub).sort((a,b)=>Number(b.year)-Number(a.year));
+      fillYearFilter(pubs);
+      renderPubs(pubs);
+    }catch(e){
+      $("pubList").innerHTML = `<div class="pubItem"><p class="pubTitle">Couldn’t load publications.json</p><p class="pubMeta">${escapeHtml(e.message)}</p></div>`;
+    }
+
+    ["pubSearch","pubYear","pubType"].forEach(id=>{
+      $(id).addEventListener("input", ()=> renderPubs(pubs));
+      $(id).addEventListener("change", ()=> renderPubs(pubs));
+    });
+  }
+
+  main();
+</script>
 </body>
 </html>
+
